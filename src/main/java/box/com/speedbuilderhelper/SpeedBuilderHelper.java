@@ -82,8 +82,7 @@ public class SpeedBuilderHelper {
         int game = Utils.getGame();
 
         if (game != 2 && lastGame == 2) {
-            closestPlat = null;
-            // left game
+            closestPlat = null; // left game
         }
         lastGame = game;
 
