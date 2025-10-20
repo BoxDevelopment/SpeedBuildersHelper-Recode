@@ -37,7 +37,7 @@ public class SpeedBuilderHelper {
     private String currentTheme = "";
     private String currentDiff = "";
     private BlockPos closestPlat = null;
-    private int lastGame;
+    private int lastGameState = -1;
 
     // List
     public List<BlockPos> platformPositions = Arrays.asList(
@@ -74,22 +74,30 @@ public class SpeedBuilderHelper {
         }
     }
 
+
+
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent e) {
         if (e.phase != TickEvent.Phase.END) return;
+
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.theWorld == null || mc.thePlayer == null) return;
         int game = Utils.getGame();
 
-        if (game != 2 && lastGame == 2) {
-            closestPlat = null; // left game
+        if (game == 2 && lastGameState != 2) {
+            getPlatform();
         }
-        lastGame = game;
+
+        if (game != 2 && lastGameState == 2) {
+            closestPlat = null;
+        }
 
         if (game == 2) {
             updateInfo();
         }
+        lastGameState = game;
     }
+
 
 
     // Func
