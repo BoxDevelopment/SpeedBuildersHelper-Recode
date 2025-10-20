@@ -91,7 +91,7 @@ public class SpeedBuilderHelper {
         if (foundTheme != null && !foundTheme.equalsIgnoreCase(currentTheme)) {
             currentTheme = foundTheme;
             currentDiff = foundDiff;
-            Utils.sendMessage("§bTheme: §f " + currentTheme + " §Difficulty: §f " + currentDiff);
+            Utils.sendMessage("§bTheme: §f" + currentTheme + " §dDifficulty: §f" + currentDiff);
         }
     }
 }
