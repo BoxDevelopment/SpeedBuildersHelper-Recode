@@ -88,7 +88,7 @@ public class SpeedBuilderHelper {
             }
             if (foundTheme != null && foundDiff != null) break;
         }
-        if (foundTheme != null & !foundTheme.equalsIgnoreCase(currentTheme)) {
+        if (foundTheme != null && !foundTheme.equalsIgnoreCase(currentTheme)) {
             currentTheme = foundTheme;
             currentDiff = foundDiff;
             Utils.sendMessage("§bTheme: §f " + currentTheme + " §Difficulty: §f " + currentDiff);
