@@ -39,6 +39,10 @@ public class SpeedBuilderHelper {
     private BlockPos closestPlat = null;
     private int lastGameState = -1;
 
+    // Booleans
+    private static boolean loaded = false;
+    public static boolean debug = true;
+
     // List
     public List<BlockPos> platformPositions = Arrays.asList(
             new BlockPos(-15, 72, 45),
@@ -51,8 +55,7 @@ public class SpeedBuilderHelper {
             new BlockPos(-44, 72, 18)
     );
 
-    // Booleans
-     private static boolean loaded = false;
+
 
 
     // Events
@@ -122,7 +125,7 @@ public class SpeedBuilderHelper {
         }
         if (nearest != null) {
             closestPlat = nearest;
-            Utils.sendMessage("§bClosest platform: §f" + String.format("X=%d, Y=%d, Z=%d", nearest.getX(), nearest.getY(), nearest.getZ()));
+            Utils.sendDebug("§bClosest platform: §f" + String.format("X=%d, Y=%d, Z=%d", nearest.getX(), nearest.getY(), nearest.getZ()));
         }
     }
 

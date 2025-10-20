@@ -36,6 +36,12 @@ public class Utils implements MC {
         }
         mc.thePlayer.addChatMessage(new ChatComponentText(replace("§7[§dSBH§7]§r " + message)));
     }
+    public static void sendDebug(String message) {
+        if (!nullCheck() || !SpeedBuilderHelper.debug) {
+            return;
+        }
+        mc.thePlayer.addChatMessage(new ChatComponentText(replace("§7[§dDEBUG§7]§r " + message)));
+    }
 
     public static String replace(String text) {
         return text.replace("&", "§").replace("%and", "&");
