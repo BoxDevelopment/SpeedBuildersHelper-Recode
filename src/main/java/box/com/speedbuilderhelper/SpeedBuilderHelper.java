@@ -4,6 +4,8 @@ package box.com.speedbuilderhelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -13,6 +15,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 // §
@@ -29,10 +32,23 @@ public class SpeedBuilderHelper {
     private static final File CONFIG = new File(Directory,"conf.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    // Strings
+    // Objects
     public static String username;
     private String currentTheme = "";
     private String currentDiff = "";
+    private BlockPos closestPlat = null;
+
+    // List
+    public List<BlockPos> platformPositions = Arrays.asList(
+            new BlockPos(-15, 72, 45),
+            new BlockPos(18, 72, 45),
+            new BlockPos(45, 72, 16),
+            new BlockPos(45, 72, -17),
+            new BlockPos(16, 72, -44),
+            new BlockPos(-17, 72, -44),
+            new BlockPos(-44, 72, -15),
+            new BlockPos(-44, 72, 18)
+    );
 
     // Booleans
      private static boolean loaded = false;
@@ -71,6 +87,30 @@ public class SpeedBuilderHelper {
 
     // Func
     private void onFirstWorldJoin() {username = Utils.getUser();}
+
+    private void getPlatform() {
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityPlayer player = mc.thePlayer;
+
+        if (player == null) return;
+
+        BlockPos playerPos = player.getPosition();
+        double closestDist = Double.MAX_VALUE;
+        BlockPos nearest = null;
+
+        for (BlockPos platform: platformPositions) {
+            double dist = platform.distanceSq(playerPos);
+            if (dist < closestDist) {
+                closestDist = dist;
+                nearest = platform;
+            }
+        }
+        if (nearest != null) {
+            closestPlat = nearest;
+            Utils.sendMessage("§bClosest platform: §f" + String.format("X=%d, Y=%d, Z=%d", nearest.getX(), nearest.getY(), nearest.getZ()));
+        }
+    }
+
 
     private void updateInfo() {
         List<String> sidebar = Utils.getSidebar();
