@@ -97,8 +97,11 @@ public class Utils implements MC {
     }
 
     public static String stripColour(String text) {
-        return text.replaceAll("§.", "");
+        if (text == null) return "";
+        return text.replaceAll("(?i)[§&][0-9A-FK-OR]", "").trim();
     }
+
+
 
     public static int getGame() {
         List<String> sidebar = Utils.getSidebar();

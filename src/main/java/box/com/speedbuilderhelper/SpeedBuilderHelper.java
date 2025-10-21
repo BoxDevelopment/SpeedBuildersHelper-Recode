@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import sun.awt.image.BufferedImageDevice;
 
 import java.io.File;
 import java.util.Arrays;
@@ -41,6 +42,7 @@ public class SpeedBuilderHelper {
     private String currentDiff = "";
     private BlockPos closestPlat = null;
     private int lastGameState = -1;
+    private TimesData timesData = new TimesData();
 
     // Booleans
     private static boolean loaded = false;
@@ -68,6 +70,7 @@ public class SpeedBuilderHelper {
             Directory.mkdirs();
         }
         MinecraftForge.EVENT_BUS.register(this);
+        loadTimes();
     }
 
     @SubscribeEvent
@@ -152,14 +155,17 @@ public class SpeedBuilderHelper {
         String foundDiff = null;
 
         for (String line : sidebar) {
-            String clean = Utils.stripColour(line);
+            String clean = Utils.stripColour(line).trim();
+
             if (clean.startsWith("Theme: ")) {
                 foundTheme = clean.substring(7).trim();
-            }else if (clean.startsWith("Difficulty: ")) {
-                foundDiff = clean.substring(11).trim();
+            } else if (clean.startsWith("Difficulty: ")) {
+                foundDiff = clean.substring(12).trim();
             }
+
             if (foundTheme != null && foundDiff != null) break;
         }
+
         if (foundTheme != null && !foundTheme.equalsIgnoreCase(currentTheme)) {
             currentTheme = foundTheme;
             currentDiff = foundDiff;
@@ -168,6 +174,53 @@ public class SpeedBuilderHelper {
     }
 
     private void submitTime(double time) {
-        Utils.sendMessage("§aCompleted " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time);
+        String variant = "0"; // update dynamically later
+
+        // find existing
+        for (BuildEntry entry : timesData.builds) {
+            if (entry.name.equalsIgnoreCase(currentTheme) && entry.difficulty.equalsIgnoreCase(currentDiff) && entry.variant.equalsIgnoreCase(variant)) {
+                if (time < entry.time) { // ensure its faster.
+                    Utils.sendMessage("§aNew record! " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time + " (Previous: " + entry.time + ")");
+                    entry.time = time;
+                    saveTimes();
+                } else {
+                    Utils.sendMessage("§eCompleted " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time + " (Best: " + entry.time + ")");
+                }
+                return;
+            }
+        }
+        Utils.sendMessage("§aFirst completion! " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time);
+        timesData.builds.add(new BuildEntry(currentTheme, currentDiff, variant, time)); // create a new one.
+        saveTimes();
     }
+
+    private void loadTimes() {
+        try {
+            if (!TIMES.exists()) {
+                saveTimes();
+                return;
+            }
+
+            timesData = GSON.fromJson(new java.io.FileReader(TIMES), TimesData.class);
+            if (timesData == null) timesData = new TimesData();
+
+            Utils.sendDebug("§aLoaded " + timesData.builds.size() + " build times.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            timesData = new TimesData();
+            Utils.sendMessage("§cFailed to load times.json: " + ex.getMessage());
+        }
+    }
+
+    private void saveTimes() {
+        try (java.io.FileWriter writer = new java.io.FileWriter(TIMES)) {
+            GSON.toJson(timesData, writer);
+            writer.flush();
+            Utils.sendDebug("§aTimes file saved successfully.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Utils.sendMessage("§cFailed to save times.json: " + ex.getMessage());
+        }
+    }
+
 }
