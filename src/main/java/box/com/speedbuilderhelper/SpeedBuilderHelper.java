@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,6 +18,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // §
 @Mod(modid = SpeedBuilderHelper.MODID, version = SpeedBuilderHelper.VERSION)
@@ -65,6 +68,17 @@ public class SpeedBuilderHelper {
             Directory.mkdirs();
         }
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void onChat(ClientChatReceivedEvent e) {
+        String m = e.message.getUnformattedText();
+        Pattern pattern = Pattern.compile("(.*) got a perfect build in (.*)s!");
+        Matcher match = pattern.matcher((m));
+        if (match.find() && match.group(1).equals(username)) {
+            double time = Double.parseDouble(match.group(2));
+            submitTime(time);
+        }
     }
 
     @SubscribeEvent
@@ -151,5 +165,9 @@ public class SpeedBuilderHelper {
             currentDiff = foundDiff;
             Utils.sendMessage("§bTheme: §f" + currentTheme + " §dDifficulty: §f" + currentDiff);
         }
+    }
+
+    private void submitTime(double time) {
+        Utils.sendMessage("§aCompleted " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time);
     }
 }
