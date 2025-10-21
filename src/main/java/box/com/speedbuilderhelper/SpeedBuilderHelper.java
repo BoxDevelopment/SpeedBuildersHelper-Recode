@@ -176,9 +176,13 @@ public class SpeedBuilderHelper {
     private void submitTime(double time) {
         String variant = "0"; // update dynamically later
 
-        // find existing
+        currentTheme = sanitizeText(currentTheme);
+        currentDiff = sanitizeText(currentDiff);
+
         for (BuildEntry entry : timesData.builds) {
-            if (entry.name.equalsIgnoreCase(currentTheme) && entry.difficulty.equalsIgnoreCase(currentDiff) && entry.variant.equalsIgnoreCase(variant)) {
+            if (entry.name.equalsIgnoreCase(currentTheme)
+                    && entry.difficulty.equalsIgnoreCase(currentDiff)
+                    && entry.variant.equalsIgnoreCase(variant)) {
                 if (time < entry.time) { // ensure its faster.
                     Utils.sendMessage("§aNew record! " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time + " (Previous: " + entry.time + ")");
                     entry.time = time;
@@ -193,6 +197,13 @@ public class SpeedBuilderHelper {
         timesData.builds.add(new BuildEntry(currentTheme, currentDiff, variant, time)); // create a new one.
         saveTimes();
     }
+
+
+    private String sanitizeText(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[^a-zA-Z0-9 ]", "").trim();
+    }
+
 
     private void loadTimes() {
         try {
