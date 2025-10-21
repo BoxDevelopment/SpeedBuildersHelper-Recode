@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class Utils implements MC {
 
@@ -96,9 +97,11 @@ public class Utils implements MC {
         return lines;
     }
 
+    private static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]");
+
     public static String stripColour(String text) {
         if (text == null) return "";
-        return text.replaceAll("(?i)[§&][0-9A-FK-OR]", "").trim();
+        return STRIP_COLOR_PATTERN.matcher(text).replaceAll("").trim();
     }
 
 

@@ -201,7 +201,7 @@ public class SpeedBuilderHelper {
                 return;
             }
 
-            timesData = GSON.fromJson(new java.io.FileReader(TIMES), TimesData.class);
+            timesData = GSON.fromJson(new java.io.InputStreamReader(new java.io.FileInputStream(TIMES), java.nio.charset.StandardCharsets.UTF_8), TimesData.class);
             if (timesData == null) timesData = new TimesData();
 
             Utils.sendDebug("§aLoaded " + timesData.builds.size() + " build times.");
@@ -213,7 +213,7 @@ public class SpeedBuilderHelper {
     }
 
     private void saveTimes() {
-        try (java.io.FileWriter writer = new java.io.FileWriter(TIMES)) {
+        try (java.io.OutputStreamWriter writer = new java.io.OutputStreamWriter(new java.io.FileOutputStream(TIMES), java.nio.charset.StandardCharsets.UTF_8)) {
             GSON.toJson(timesData, writer);
             writer.flush();
             Utils.sendDebug("§aTimes file saved successfully.");
