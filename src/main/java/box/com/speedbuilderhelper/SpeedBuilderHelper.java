@@ -3,8 +3,10 @@ package box.com.speedbuilderhelper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,6 +42,8 @@ public class SpeedBuilderHelper {
     public static String username;
     private String currentTheme = "";
     private String currentDiff = "";
+    private String currentVariant = "";
+    private String lastThemeSeen = "";
     private BlockPos closestPlat = null;
     private int lastGameState = -1;
     private TimesData timesData = new TimesData();
@@ -98,10 +102,11 @@ public class SpeedBuilderHelper {
 
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.theWorld == null || mc.thePlayer == null) return;
+
         int game = Utils.getGame();
 
         if (game == 2 && lastGameState != 2) {
-            getPlatform();
+            getPlatform(); // detect platform once on round start
         }
 
         if (game != 2 && lastGameState == 2) {
@@ -109,8 +114,13 @@ public class SpeedBuilderHelper {
         }
 
         if (game == 2) {
-            updateInfo();
+            String foundTheme = Utils.getCurrentTheme();
+            if (foundTheme != null && !foundTheme.equalsIgnoreCase(lastThemeSeen)) {
+                lastThemeSeen = foundTheme;
+                updateInfo();
+            }
         }
+
         lastGameState = game;
     }
 
@@ -142,6 +152,53 @@ public class SpeedBuilderHelper {
         }
     }
 
+    private String getVariant() {
+        if (closestPlat == null || currentTheme == null) return "0"; // use || not |
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.theWorld == null) return "0"; // must return string, not int
+
+        BlockPos pos = closestPlat.up(2);
+        net.minecraft.block.state.IBlockState state = mc.theWorld.getBlockState(pos);
+        net.minecraft.block.Block block = state.getBlock();
+        int meta = block.getMetaFromState(state);
+
+        String theme = currentTheme.toLowerCase();
+
+        switch (theme) {
+            case "painting":
+                return getPainting(block, meta);
+
+            case "clownfish":
+                return getClownfish(block);
+
+            default:
+                return "0";
+        }
+    }
+
+    private String getPainting(net.minecraft.block.Block block, int meta) {
+        if (block != net.minecraft.init.Blocks.wool) return "0";
+
+        switch (meta) {
+            case 5: // lime
+                return "1";
+            case 4: // yellow
+                return "2";
+            default:
+                return "0";
+        }
+    }
+
+    private String getClownfish(net.minecraft.block.Block block) {
+        if (block == net.minecraft.init.Blocks.glass_pane) {
+            return "1";
+        }
+        if (block == net.minecraft.init.Blocks.wool) {
+            return "2";
+        }
+        return "0";
+    }
+
 
     private void updateInfo() {
         List<String> sidebar = Utils.getSidebar();
@@ -165,12 +222,13 @@ public class SpeedBuilderHelper {
         if (foundTheme != null && !foundTheme.equalsIgnoreCase(currentTheme)) {
             currentTheme = foundTheme;
             currentDiff = foundDiff;
-            Utils.sendMessage("§bTheme: §f" + currentTheme + " §dDifficulty: §f" + currentDiff);
+            currentVariant = getVariant();
+            Utils.sendMessage("§bTheme: §f" + currentTheme + " §dDifficulty: §f" + currentDiff + " §dVariant: §f" + currentVariant);
         }
     }
 
     private void submitTime(double time) {
-        String variant = "0"; // update dynamically later
+
 
         currentTheme = Utils.sanitizeText(currentTheme);
         currentDiff = Utils.sanitizeText(currentDiff);
@@ -178,7 +236,7 @@ public class SpeedBuilderHelper {
         for (BuildEntry entry : timesData.builds) {
             if (entry.name.equalsIgnoreCase(currentTheme)
                     && entry.difficulty.equalsIgnoreCase(currentDiff)
-                    && entry.variant.equalsIgnoreCase(variant)) {
+                    && entry.variant.equalsIgnoreCase(currentVariant)) {
                 if (time < entry.time) { // ensure its faster.
                     Utils.sendMessage("§aNew record! " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time + " (Previous: " + entry.time + ")");
                     entry.time = time;
@@ -190,7 +248,7 @@ public class SpeedBuilderHelper {
             }
         }
         Utils.sendMessage("§aFirst completion! " + currentTheme + ", Difficulty: " + currentDiff + " Time: " + time);
-        timesData.builds.add(new BuildEntry(currentTheme, currentDiff, variant, time)); // create a new one.
+        timesData.builds.add(new BuildEntry(currentTheme, currentDiff, currentVariant, time)); // create a new one.
         saveTimes();
     }
 

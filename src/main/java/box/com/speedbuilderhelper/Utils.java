@@ -125,4 +125,18 @@ public class Utils implements MC {
         if (input == null) return "";
         return input.replaceAll("[^a-zA-Z0-9 ]", "").trim();
     }
+
+    public static String getCurrentTheme() {
+        List<String> sidebar = getSidebar();
+        if (sidebar == null || sidebar.isEmpty()) return null;
+
+        for (String line : sidebar) {
+            String clean = stripColour(line).trim();
+            if (clean.startsWith("Theme: ")) {
+                return clean.substring(7).trim();
+            }
+        }
+        return null;
+    }
+
 }
