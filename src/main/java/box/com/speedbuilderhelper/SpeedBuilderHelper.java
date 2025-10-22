@@ -181,9 +181,9 @@ public class SpeedBuilderHelper {
 
         switch (meta) {
             case 5: // lime
-                return "1";
+                return "Horizontal";
             case 4: // yellow
-                return "2";
+                return "Vertical";
             default:
                 return "0";
         }
@@ -191,10 +191,10 @@ public class SpeedBuilderHelper {
 
     private String getClownfish(net.minecraft.block.Block block) {
         if (block == net.minecraft.init.Blocks.glass_pane) {
-            return "1";
+            return "Big";
         }
-        if (block == net.minecraft.init.Blocks.wool) {
-            return "2";
+        if (block == net.minecraft.init.Blocks.stained_hardened_clay) {
+            return "Small";
         }
         return "0";
     }
