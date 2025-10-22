@@ -37,6 +37,7 @@ public class Utils implements MC {
         }
         mc.thePlayer.addChatMessage(new ChatComponentText(replace("§7[§dSBH§7]§r " + message)));
     }
+
     public static void sendDebug(String message) {
         if (!nullCheck() || !SpeedBuilderHelper.debug) {
             return;
@@ -53,7 +54,7 @@ public class Utils implements MC {
             return Math.round(number);
         }
         double power = Math.pow(10.0, decimals);
-        return (double)Math.round(number * power) / power;
+        return (double) Math.round(number * power) / power;
     }
 
     public static boolean contains(List<String> list, String target) {
@@ -104,8 +105,6 @@ public class Utils implements MC {
         return STRIP_COLOR_PATTERN.matcher(text).replaceAll("").trim();
     }
 
-
-
     public static int getGame() {
         List<String> sidebar = Utils.getSidebar();
         boolean isGame = false;
@@ -120,5 +119,10 @@ public class Utils implements MC {
             }
         }
         return isGame ? 1 : 0;
+    }
+
+    public static String sanitizeText(String input) {
+        if (input == null) return "";
+        return input.replaceAll("[^a-zA-Z0-9 ]", "").trim();
     }
 }

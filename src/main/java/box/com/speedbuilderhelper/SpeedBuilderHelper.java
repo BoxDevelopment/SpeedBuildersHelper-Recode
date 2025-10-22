@@ -33,7 +33,7 @@ public class SpeedBuilderHelper {
     // File Setup
     public final static File Directory = new File(Minecraft.getMinecraft().mcDataDir + File.separator + "SBH");
     private static final File TIMES = new File(Directory, "times.json");
-    private static final File CONFIG = new File(Directory,"conf.json");
+    private static final File CONFIG = new File(Directory, "conf.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // Objects
@@ -59,8 +59,6 @@ public class SpeedBuilderHelper {
             new BlockPos(-44, 72, -15),
             new BlockPos(-44, 72, 18)
     );
-
-
 
 
     // Events
@@ -94,8 +92,6 @@ public class SpeedBuilderHelper {
         }
     }
 
-
-
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent e) {
         if (e.phase != TickEvent.Phase.END) return;
@@ -118,10 +114,10 @@ public class SpeedBuilderHelper {
         lastGameState = game;
     }
 
-
-
     // Func
-    private void onFirstWorldJoin() {username = Utils.getUser();}
+    private void onFirstWorldJoin() {
+        username = Utils.getUser();
+    }
 
     private void getPlatform() {
         Minecraft mc = Minecraft.getMinecraft();
@@ -133,7 +129,7 @@ public class SpeedBuilderHelper {
         double closestDist = Double.MAX_VALUE;
         BlockPos nearest = null;
 
-        for (BlockPos platform: platformPositions) {
+        for (BlockPos platform : platformPositions) {
             double dist = platform.distanceSq(playerPos);
             if (dist < closestDist) {
                 closestDist = dist;
@@ -176,8 +172,8 @@ public class SpeedBuilderHelper {
     private void submitTime(double time) {
         String variant = "0"; // update dynamically later
 
-        currentTheme = sanitizeText(currentTheme);
-        currentDiff = sanitizeText(currentDiff);
+        currentTheme = Utils.sanitizeText(currentTheme);
+        currentDiff = Utils.sanitizeText(currentDiff);
 
         for (BuildEntry entry : timesData.builds) {
             if (entry.name.equalsIgnoreCase(currentTheme)
@@ -197,13 +193,6 @@ public class SpeedBuilderHelper {
         timesData.builds.add(new BuildEntry(currentTheme, currentDiff, variant, time)); // create a new one.
         saveTimes();
     }
-
-
-    private String sanitizeText(String input) {
-        if (input == null) return "";
-        return input.replaceAll("[^a-zA-Z0-9 ]", "").trim();
-    }
-
 
     private void loadTimes() {
         try {
